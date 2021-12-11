@@ -1,35 +1,35 @@
 const database = require('../../data/dbConfig')
 
+
 async function getTasks(){
-    const tasks = await database('tasks')
-    return tasks.map((task)=>{
-        return{
-            ...task,
-            task_completed: task.task_completed === 1,
-        }
+ const newTask = await database('task as t')
+.leftJoin('projects as p',{
+    'p.project_id':'t.project_id'
+})
+return newTask.map(np=>{
+    return({
+        task_id: np.task_id,
+        task_description: np.task_description,
+        task_notes: np.task_notes,
+        task_completed: np.task_completed,
+        project_name: np.project_name,
+        project_description: np.project_description,
     })
-    }
+})
+}
     
-    async function findById(id){
-        const row = await database('tasks')
-        .where('task_id', id)
-        .first()
+const createTask= async (newTask)=>{
+const added = await database('tasks')
+.insert(newTask)
+.then(([task_id])=>{
+    return database('tasks')
+    .where('task_id', task_id)
+    .first()
+})
+return added
+}
     
-        return {
-            ...row, 
-            task_completed: row.task_completed ? true : false
-        }
-    }
-    
-    
-    async function insert(task){
-     const [id]= await database('tasks')
-     .insert(task)
-    
-     return findById(id)
-    }
     module.exports = {
         getTasks,
-        findById,
-        insert,
+        createTask,
     }

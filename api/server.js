@@ -11,9 +11,10 @@ server.use('/api/projects', projectRouter)
 server.use('/api/resources', resourceRouter)
 server.use('/api/tasks', taskRouter)
 
-server.use('*', (error, req,res)=>{
+server.use((error, req,res)=>{
     res.status(404).json({
-        message: error.message
+        message: error.message,
+        stack: error.stack,
     })
 })
 
